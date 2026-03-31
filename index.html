@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shoe AI Interface • Live Demo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+
+        :root {
+            --neon-cyan: #00f7ff;
+            --neon-blue: #00b8ff;
+            --neon-green: #39ff14;
+            --dark-navy: #0a1428;
+            --glass: rgba(15, 23, 42, 0.75);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #0a1428 0%, #0f1a33 100%);
+            color: white;
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: rgba(10, 20, 40, 0.6);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 247, 255, 0.2);
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-circle {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #00f7ff, #39ff14);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px #00f7ff;
+            font-size: 22px;
+            color: #0a1428;
+            font-weight: 700;
+        }
+
+        .title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #00f7ff, #39ff14);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 9999px;
+            padding: 6px 20px 6px 8px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #39ff14;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #39ff14;
+            border-radius: 50%;
+            animation: statusPulse 2s infinite;
+            box-shadow: 0 0 12px #39ff14;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 30px 40px 40px;
+        }
+
+        .mode-panel {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            background: rgba(10, 20, 40, 0.4);
+            border-radius: 24px;
+            padding: 12px;
+            border: 1px solid rgba(0, 247, 255, 0.15);
+        }
+
+        .mode-btn {
+            padding: 14px 28px;
+            border-radius: 9999px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.05);
+            color: #00f7ff;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 0 0 0 rgba(0, 247, 255, 0);
+        }
+
+        .mode-btn:hover {
+            background: rgba(0, 247, 255, 0.1);
+            border-color: #00f7ff;
+            box-shadow: 0 0 25px -5px #00f7ff;
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: #00f7ff;
+            color: #0a1428;
+            border-color: #00f7ff;
+            box-shadow: 0 0 30px #00f7ff;
+        }
+
+        .stop-btn {
+            padding: 14px 32px;
+            border-radius: 9999px;
+            background: #ff0033;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            box-shadow: 0 0 30px #ff0033;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stop-btn:hover {
+            background: #ff3366;
+            transform: scale(1.05);
+            box-shadow: 0 0 40px #ff0033;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 247, 255, 0.15),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            box-shadow: 
+                0 30px 60px -15px rgba(0, 247, 255, 0.25),
+                inset 0 1px 0 rgba(255,255,255,0.15);
+            transform: translateY(-4px);
+        }
+
+        .ai-dashboard {
+            text-align: center;
+            min-height: 280px;
+        }
+
+        .ai-dashboard h2 {
+            font-size: 18px;
+            letter-spacing: 4px;
+            font-weight: 500;
+            color: #00f7ff;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .priority-label {
+            font-size: 17px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .priority-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 92px;
+            font-weight: 600;
+            line-height: 1;
+            color: #00f7ff;
+            text-shadow: 
+                0 0 40px #00f7ff,
+                0 0 80px rgba(0, 247, 255, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .move-label {
+            font-size: 17px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .move-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 82px;
+            font-weight: 600;
+            line-height: 1;
+            color: #39ff14;
+            text-shadow: 
+                0 0 40px #39ff14,
+                0 0 80px rgba(57, 255, 20, 0.5);
+        }
+
+        .divider {
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00f7ff, transparent);
+            margin: 20px auto;
+        }
+
+        .decision-card {
+            font-size: 24px;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .decision-card .arrow {
+            color: #39ff14;
+            margin: 0 12px;
+            font-size: 32px;
+        }
+
+        .reasoning-card p {
+            font-size: 19px;
+            line-height: 1.5;
+            color: #ddd;
+        }
+
+        .radar-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .radar-card {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle at center, rgba(10, 20, 40, 0.9) 0%, rgba(10, 20, 40, 0.6) 100%);
+            border-radius: 50%;
+            border: 8px solid rgba(0, 247, 255, 0.3);
+            box-shadow: 
+                0 0 80px -10px #00f7ff,
+                inset 0 0 80px -20px #00f7ff;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        svg.radar {
+            width: 100%;
+            height: 100%;
+        }
+
+        .route-card {
+            height: 100%;
+        }
+
+        .route-btn {
+            padding: 16px 24px;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .route-btn.rec {
+            background: #39ff14;
+            color: #0a1428;
+            box-shadow: 0 0 30px #39ff14;
+        }
+
+        .route-btn.stop {
+            background: transparent;
+            border: 2px solid #ff3366;
+            color: #ff3366;
+        }
+
+        .route-btn.nav {
+            background: #00b8ff;
+            color: #0a1428;
+            box-shadow: 0 0 30px #00b8ff;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.06);
+            padding: 14px 24px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(57, 255, 20, 0.15);
+            transform: translateX(8px);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: rgba(0, 247, 255, 0.6);
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-top: 1px solid rgba(0, 247, 255, 0.1);
+            margin-top: 40px;
+        }
+
+        /* Radar specific animations */
+        @keyframes radarSweep {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .sweep-line {
+            animation: radarSweep 3.5s linear infinite;
+            transform-origin: 210px 210px;
+        }
+
+        .pulse-ring {
+            animation: radarPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes radarPulse {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 0; transform: scale(1.8); }
+        }
+
+        .glow-text {
+            text-shadow: 0 0 20px currentColor;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-circle">👟</div>
+            <div>
+                <h1 class="title">Smart Shoe AI Interface</h1>
+                <p style="font-size: 13px; color: #00f7ff; letter-spacing: 3px; margin-top: -4px;">NAVIGATION SYSTEM v2.4</p>
+            </div>
+        </div>
+        
+        <div class="status">
+            <div class="status-dot"></div>
+            CONNECTED • ACTIVE
+            <span style="margin-left: 8px; font-size: 13px; background: rgba(57,255,20,0.2); padding: 2px 10px; border-radius: 9999px;">LIVE</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 16px; font-size: 14px; color: #00b8ff;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="width: 8px; height: 8px; background: #39ff14; border-radius: 50%;"></div>
+                SHOE #SS-4782
+            </div>
+            <div>98% BATTERY</div>
+            <div style="background: rgba(0,247,255,0.1); padding: 4px 14px; border-radius: 9999px; border: 1px solid #00f7ff;">DEMO MODE</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        
+        <!-- MODE CONTROL PANEL -->
+        <div class="mode-panel" id="modePanel">
+            <button onclick="toggleMode(this)" class="mode-btn active" data-mode="audio">
+                🎧 Audio Mode
+            </button>
+            <button onclick="toggleMode(this)" class="mode-btn" data-mode="voice">
+                🗣️ Voice Mode
+            </button>
+            <button onclick="toggleMode(this)" class="mode-btn" data-mode="ai">
+                🤖 AI Direction Mode
+            </button>
+            <button onclick="toggleMode(this)" class="mode-btn" data-mode="human">
+                👤 Human Detection
+            </button>
+            <button onclick="toggleMode(this)" class="mode-btn" data-mode="object">
+                📦 Object Detection
+            </button>
+            
+            <!-- STOP BUTTON -->
+            <button onclick="emergencyStop()" class="stop-btn">
+                ⛔ STOP
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT COLUMN: AI DASHBOARD + DECISION + REASONING -->
+            <div class="lg:col-span-5 space-y-8">
+                
+                <!-- AI DASHBOARD SECTION -->
+                <div class="card ai-dashboard">
+                    <h2>AI NAVIGATION CORE</h2>
+                    <div class="priority-label">PRIORITY</div>
+                    <div class="priority-value" id="priorityValue">LEFT</div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div class="move-label">MOVE COMMAND</div>
+                    <div class="move-value" id="moveValue">RIGHT</div>
+                    
+                    <div style="margin-top: 24px; display: flex; justify-content: center; gap: 40px; font-size: 14px; color: #00b8ff;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: #00f7ff; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 15px #00f7ff;"></span>
+                            MAX SPACE
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: #39ff14; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 15px #39ff14;"></span>
+                            CONFIDENCE 94%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DECISION PANEL -->
+                <div class="card decision-card">
+                    <div style="display: flex; align-items: center; font-size: 26px; font-weight: 500;">
+                        <span style="color: #ff3366;">⚠️</span>
+                        <span style="margin-left: 14px;">Obstacle on FRONT</span>
+                        <span class="arrow">→</span>
+                        <span style="color: #00f7ff;">Move LEFT</span>
+                    </div>
+                    <div style="margin-top: 12px; font-size: 15px; color: rgba(255,255,255,0.5);">
+                        Distance: 1.8m • Threat level: HIGH
+                    </div>
+                </div>
+
+                <!-- AI REASONING PANEL -->
+                <div class="card reasoning-card">
+                    <div style="font-size: 15px; color: #00f7ff; letter-spacing: 2px; margin-bottom: 12px;">AI REASONING ENGINE</div>
+                    <p id="reasoningText">LEFT selected as it has maximum available space (4.2m clearance). RIGHT has minor clutter but is the safest immediate move. Back direction blocked by wall.</p>
+                </div>
+            </div>
+
+            <!-- CENTER: RADAR VISUALIZATION (CENTERPIECE) -->
+            <div class="lg:col-span-3 flex items-center justify-center">
+                <div class="radar-container">
+                    <div class="radar-card">
+                        <svg class="radar" width="420" height="420" viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Concentric circles -->
+                            <circle cx="210" cy="210" r="185" fill="none" stroke="#00f7ff" stroke-width="4" stroke-opacity="0.12"/>
+                            <circle cx="210" cy="210" r="135" fill="none" stroke="#00f7ff" stroke-width="4" stroke-opacity="0.15"/>
+                            <circle cx="210" cy="210" r="85" fill="none" stroke="#00f7ff" stroke-width="4" stroke-opacity="0.18"/>
+                            <circle cx="210" cy="210" r="35" fill="none" stroke="#00f7ff" stroke-width="4" stroke-opacity="0.25"/>
+                            
+                            <!-- Cross lines -->
+                            <line x1="25" y1="210" x2="395" y2="210" stroke="#00f7ff" stroke-width="2" stroke-opacity="0.2"/>
+                            <line x1="210" y1="25" x2="210" y2="395" stroke="#00f7ff" stroke-width="2" stroke-opacity="0.2"/>
+                            
+                            <!-- Direction labels -->
+                            <text x="210" y="38" text-anchor="middle" fill="#00f7ff" font-size="18" font-weight="600" letter-spacing="1">FRONT</text>
+                            <text x="382" y="210" text-anchor="middle" fill="#00f7ff" font-size="18" font-weight="600" letter-spacing="1" transform="rotate(90 382 210)">RIGHT</text>
+                            <text x="210" y="398" text-anchor="middle" fill="#00f7ff" font-size="18" font-weight="600" letter-spacing="1">BACK</text>
+                            <text x="38" y="210" text-anchor="middle" fill="#00f7ff" font-size="18" font-weight="600" letter-spacing="1" transform="rotate(-90 38 210)">LEFT</text>
+                            
+                            <!-- Direction dots -->
+                            <!-- Front -->
+                            <circle cx="210" cy="45" r="9" fill="#00f7ff" opacity="0.7"/>
+                            <!-- Right -->
+                            <circle cx="375" cy="210" r="9" fill="#00f7ff" opacity="0.7"/>
+                            <!-- Back -->
+                            <circle cx="210" cy="375" r="9" fill="#00f7ff" opacity="0.7"/>
+                            <!-- Left (highlighted) -->
+                            <circle cx="45" cy="210" r="12" fill="#39ff14" opacity="0.9" class="pulse-ring"/>
+                            
+                            <!-- Sweep line -->
+                            <g class="sweep-line">
+                                <line x1="210" y1="210" x2="210" y2="38" stroke="#39ff14" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+                                <line x1="210" y1="210" x2="210" y2="38" stroke="#39ff14" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+                            </g>
+                            
+                            <!-- Center dot -->
+                            <circle cx="210" cy="210" r="12" fill="#39ff14"/>
+                            <circle cx="210" cy="210" r="6" fill="#fff"/>
+                            
+                            <!-- Subtle grid dots (static) -->
+                            <circle cx="130" cy="110" r="3" fill="#00b8ff" opacity="0.4"/>
+                            <circle cx="290" cy="110" r="3" fill="#00b8ff" opacity="0.4"/>
+                            <circle cx="130" cy="310" r="3" fill="#00b8ff" opacity="0.4"/>
+                            <circle cx="290" cy="310" r="3" fill="#00b8ff" opacity="0.4"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: ROUTE MEMORY -->
+            <div class="lg:col-span-4">
+                <div class="card route-card flex flex-col h-full">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div style="font-size: 18px; letter-spacing: 2px; color: #00f7ff;">ROUTE MEMORY</div>
+                        <div onclick="clearRoute()" style="font-size: 13px; color: #ff3366; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <span>RESET</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Route buttons -->
+                    <div style="display: flex; gap: 12px; margin-bottom: 32px;">
+                        <button onclick="startRecording()" class="route-btn rec flex-1 flex items-center justify-center gap-2">
+                            <span>●</span> START RECORDING
+                        </button>
+                        <button onclick="stopRecording()" class="route-btn stop flex-1">STOP RECORDING</button>
+                        <button onclick="startNavigation()" class="route-btn nav flex-1">START NAVIGATION</button>
+                    </div>
+                    
+                    <!-- Route history display -->
+                    <div style="flex: 1; overflow-y: auto; padding-right: 8px;">
+                        <div id="routeHistory">
+                            <div class="history-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="color: #39ff14; font-size: 22px;">↑</span>
+                                    <span style="font-size: 18px;">Go LEFT</span>
+                                </div>
+                                <div style="color: #00f7ff; font-size: 13px;">8 seconds ago</div>
+                            </div>
+                            <div class="history-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="color: #00b8ff; font-size: 22px;">→</span>
+                                    <span style="font-size: 18px;">Go RIGHT</span>
+                                </div>
+                                <div style="color: #00f7ff; font-size: 13px;">47 seconds ago</div>
+                            </div>
+                            <div class="history-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="color: #39ff14; font-size: 22px;">↑</span>
+                                    <span style="font-size: 18px;">Go LEFT</span>
+                                </div>
+                                <div style="color: #00f7ff; font-size: 13px;">1 minute 12 seconds ago</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 13px; color: #00b8ff; display: flex; justify-content: space-between;">
+                        <div>PATH LENGTH: <span id="pathLength" style="color: #39ff14;">28.4m</span></div>
+                        <div>STEPS: <span id="stepCount" style="color: #39ff14;">14</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        AI-powered Assistive Navigation System • Designed for International Assistive Technology Conference 2026 • 
+        <span style="color: #39ff14;">Real-time obstacle avoidance • Voice + haptic feedback</span>
+    </div>
+
+    <script>
+        // Minimal JS for interactivity (no external dependencies)
+        
+        function toggleMode(btn) {
+            // Remove active from all
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            // Activate clicked
+            btn.classList.add('active');
+            
+            // Simulate AI update for demo
+            if (btn.getAttribute('data-mode') === 'ai') {
+                simulateDecisionUpdate();
+            }
+        }
+        
+        function emergencyStop() {
+            const stopBtn = document.querySelector('.stop-btn');
+            stopBtn.style.transform = 'scale(1.15)';
+            stopBtn.style.background = '#fff';
+            stopBtn.style.color = '#ff0033';
+            
+            // Flash effect
+            document.body.style.transition = 'filter 0.15s';
+            document.body.style.filter = 'brightness(2) hue-rotate(340deg)';
+            
+            setTimeout(() => {
+                document.body.style.filter = 'none';
+                stopBtn.style.transform = 'scale(1)';
+                stopBtn.style.background = '#ff0033';
+                stopBtn.style.color = 'white';
+                
+                alert('🚨 EMERGENCY STOP ACTIVATED\nAll navigation halted. Shoe motors locked.');
+            }, 280);
+        }
+        
+        function simulateDecisionUpdate() {
+            const priority = document.getElementById('priorityValue');
+            const move = document.getElementById('moveValue');
+            const reasoning = document.getElementById('reasoningText');
+            
+            // Quick flash animation
+            priority.style.transition = 'all 0.2s';
+            priority.style.transform = 'scale(1.15)';
+            move.style.transition = 'all 0.2s';
+            move.style.transform = 'scale(1.15)';
+            
+            setTimeout(() => {
+                priority.style.transform = 'scale(1)';
+                move.style.transform = 'scale(1)';
+                
+                // Random realistic variation for demo
+                const options = [
+                    { pri: 'LEFT', mov: 'RIGHT', text: 'LEFT selected as it has maximum available space (4.2m clearance). RIGHT has minor clutter but is the safest immediate move.' },
+                    { pri: 'RIGHT', mov: 'LEFT', text: 'RIGHT selected due to clear path and zero obstacles detected by LiDAR. LEFT has low-level movement detected.' },
+                    { pri: 'FRONT', mov: 'BACK', text: 'FRONT is clear for 6m. BACK chosen to avoid sudden human movement in left corridor.' }
+                ];
+                
+                const random = options[Math.floor(Math.random() * options.length)];
+                
+                priority.textContent = random.pri;
+                move.textContent = random.mov;
+                reasoning.textContent = random.text;
+            }, 220);
+        }
+        
+        let isRecording = false;
+        
+        function startRecording() {
+            isRecording = true;
+            const history = document.getElementById('routeHistory');
+            const newItem = document.createElement('div');
+            newItem.className = 'history-item';
+            newItem.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="color: #ff3366; font-size: 22px;">●</span>
+                    <span style="font-size: 18px;">Recording path...</span>
+                </div>
+                <div style="color: #ff3366; font-size: 13px;">LIVE</div>
+            `;
+            history.prepend(newItem);
+            
+            // Auto add one more entry after 4 seconds
+            setTimeout(() => {
+                if (isRecording) {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="color: #00b8ff; font-size: 22px;">↖</span>
+                            <span style="font-size: 18px;">Go LEFT</span>
+                        </div>
+                        <div style="color: #00f7ff; font-size: 13px;">just now</div>
+                    `;
+                    history.prepend(item);
+                }
+            }, 3800);
+        }
+        
+        function stopRecording() {
+            isRecording = false;
+            alert('✅ Route recording saved to memory\nTotal distance logged: 28.4m');
+        }
+        
+        function startNavigation() {
+            const navBtns = document.querySelectorAll('.route-btn');
+            navBtns.forEach(b => b.style.opacity = '0.6');
+            
+            setTimeout(() => {
+                alert('🚀 NAVIGATION STARTED\nSmart Shoe AI is now guiding you in real-time.\nHaptic feedback enabled.');
+                navBtns.forEach(b => b.style.opacity = '1');
+                
+                // Add a new route step
+                const history = document.getElementById('routeHistory');
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="color: #39ff14; font-size: 22px;">→</span>
+                        <span style="font-size: 18px;">Go RIGHT</span>
+                    </div>
+                    <div style="color: #00f7ff; font-size: 13px;">NAV ACTIVE</div>
+                `;
+                history.prepend(item);
+            }, 800);
+        }
+        
+        function clearRoute() {
+            if (confirm('Clear entire route memory?')) {
+                document.getElementById('routeHistory').innerHTML = '';
+                document.getElementById('pathLength').textContent = '0.0m';
+                document.getElementById('stepCount').textContent = '0';
+            }
+        }
+        
+        // Keyboard shortcut for demo (Space = simulate update)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === ' ') {
+                e.preventDefault();
+                simulateDecisionUpdate();
+            }
+        });
+        
+        // Console message for conference demo
+        console.log('%c✅ Smart Shoe AI Interface loaded successfully. Ready for conference demo.', 'color:#39ff14; font-family:monospace; font-size:13px;');
+        
+        // Auto-pulse the radar every 8 seconds with a new decision
+        setInterval(() => {
+            if (Math.random() > 0.6) {
+                simulateDecisionUpdate();
+            }
+        }, 8000);
+    </script>
+</body>
+</html>
